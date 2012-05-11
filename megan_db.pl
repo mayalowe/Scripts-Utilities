@@ -16,11 +16,11 @@ open my $fh, $input or die "Couldn't open file $input: $!";
 
 # get an array with ko id's from subroutine
 my @ko = get_koed($kofile);
-print "$ko[2] is the third knockout id!\n"; #debugging statement
+#print "$ko[2] is the third knockout id!\n"; #debugging statement
 
-my $data = gi_from_taxid(\@ko, $gifile);
+my $data = get_gi($gifile);
 
-print "$$data{288681} is the GI of the third knockout id!\n";
+#print "$$data{288681} is the GI of the third knockout id!\n";
 close $fh;
 exit;
 
@@ -42,24 +42,21 @@ sub get_koed
 	my @array = <$fh>;
 	# close the filehandle
 	close $fh;
-	print "$array[2] is the third knockout id!\n"; #debugging statement
+	#print "$array[2] is the third knockout id!\n"; #debugging statement
 	return @array;
 }
 
-# gi_from_taxid(\@ko, $gifile)
-# sub gi_from_taxid takes a reference to the knockout array
-# and a file with a list of GenBank ID's and Taxon IDs and
-# finds the corresponding GenBank ID for each Taxon ID.
+# get_gi($gifile)
+# sub gi_from_taxid takes a file with a list of GenBank ID's 
+# and Taxon IDs and finds the corresponding GenBank ID 
+# for each Taxon ID.
 
-sub gi_from_taxid
+sub get_gi
 {
-	my $ko = shift;
-	print "$$ko[2] is the third knockout id!\n"; # debugging statement
-	
 	my $gi = shift;
 	open my $fh, $gi or die "Couldn't open GenBank ID file $gi: $!";
 	
-	my $stamp = ctime(stat($fh)->mtime);
+	#my $stamp = ctime(stat($fh)->mtime);
 	#print "$stamp\n";
 	my %hash;
 	
