@@ -18,9 +18,9 @@ open my $fh, $input or die "Couldn't open file $input: $!";
 my @ko = get_koed($kofile);
 print "$ko[2] is the third knockout id!\n"; #debugging statement
 
-my $hash = gi_from_taxid(\@ko, $gifile);
+my $data = gi_from_taxid(\@ko, $gifile);
 
-print "$$hash{$ko[2]} is the GI of the third knockout id!\n";
+print "$data->$ko[2] is the GI of the third knockout id!\n";
 close $fh;
 exit;
 
@@ -60,8 +60,9 @@ sub gi_from_taxid
 	open my $fh, $gi or die "Couldn't open GenBank ID file $gi: $!";
 	
 	my $stamp = ctime(stat($fh)->mtime);
-	print "$stamp\n";
+	#print "$stamp\n";
 	my %hash;
+	
 	while (<$fh>) 
 	{
 		my $line = $_;
@@ -69,13 +70,19 @@ sub gi_from_taxid
 		
 		if ($line =~ /(\d+)\s+(\d+)/) 
 		{
-			print "TaxID: $2 ; GI: $1\n";
-			$hash{$2} = $1;
+			#print "TaxID: $2 ; GI: $1\n";
+			
+			if (exists $hash{$2})
+			{
+				next;
+			} else {
+				$hash{$2} = $1;
+			}
 		}
 	}
-	my $h = \%hash;
-	return $h;
+	
 	close $fh;
+	return \%hash;
 }
     
 
