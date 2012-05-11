@@ -20,7 +20,7 @@ print "$ko[2] is the third knockout id!\n"; #debugging statement
 
 my $data = gi_from_taxid(\@ko, $gifile);
 
-print "$$data->$ko[2] is the GI of the third knockout id!\n";
+print "$$data{$ko[2]} is the GI of the third knockout id!\n";
 close $fh;
 exit;
 
