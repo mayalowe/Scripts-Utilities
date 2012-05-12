@@ -83,4 +83,12 @@ sub get_gi
 }
     
 
+sub get_taxid_from_name
+{
+	
+}
 
+sub got_ktfoed
+{
+	
+}
