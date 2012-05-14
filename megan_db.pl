@@ -24,8 +24,8 @@ my $data = get_gi($gifile);
 my %nhash = %$data;         # stores hash into hash %nhash
 
 
-list_files_ebi();
-list_files_draft();
+list_files_ebi(@ko);
+list_files_draft(@ko);
 #my $names = get_taxid_from_name();
 #my @n = keys %$names;       # array of organism names
 #my @t = values %$names;     # array of taxids
@@ -152,6 +152,7 @@ sub get_gi
 #}
 sub list_files_ebi
 {
+    my @array = shift;
     my $dir = "/share/eisen-d2/amphora2/ebi";
     opendir my $dh, $dir or die "Couldn't open directory $dir: $!";
 
@@ -159,19 +160,22 @@ sub list_files_ebi
     {
 	next if $file =~ /^\.\.?$/;
 	next unless $file =~ /.*\.fasta/;
+
 	print $file;
     }
 }
 
 sub list_files_draft
 {
+    my @array = shift;
     my $dir = "/share/eisen-d2/amphora2/ncbi_draft";
     opendir my $dh, $dir or die "Couldn't open directory $dir: $!";
 
     foreach my $file (readdir $dh)
     {
-	next if$file =~ /^\.\.?$/;
+	next if $file =~ /^\.\.?$/;
 	next unless $file =~ /.*\.fasta/;
+
 	print $file;
     }
 
