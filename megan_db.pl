@@ -2,30 +2,60 @@
 # Author: Eric Lowe
 # Usage: perl megan_db.pl [input file] [knockout file] [gi file]
 # Script to create a custom db for MEGAN
+# Extreme work in progress
 
 use strict; use warnings;
-use File::Fetch;
-use File::stat;
-use Time::localtime;
+#use File::Fetch;
+#use File::stat;
+#use Time::localtime;
 
-#my $input = shift;
 my $kofile = shift;
 my $gifile = shift;
 
-#open my $fh, $input or die "Couldn't open file $input: $!";
 
 # get an array with ko id's from subroutine
 my @ko = get_koed($kofile);
-#print "$ko[2] is the third knockout id!\n"; #debugging statement
 
+# $data is a reference to a hash returned from the sub 
+# get_gi. this hash has keys of taxids and values of arrays
+# with each element as a gi.
 my $data = get_gi($gifile);
-#print "$$data{288681} is the GI of the third knockout id!\n";
+my %nhash = %$data;         # stores hash into hash %nhash
 
 my $names = get_taxid_from_name();
-my @k = keys %$names;
-print "$k[2]\n";
+my @n = keys %$names;       # array of organism names
+my @t = values %$names;     # array of taxids
 
-close $fh;
+my $i = 0;
+my @targets = [];
+foreach my $koed (@ko)      # for each knockout taxid
+{
+	foreach my $id (@t)     # for each taxid in ncbi db
+	{
+		if ($koed == $id)   # if knockout is in our db
+		{
+			push(@targets, $id);
+			$i++;           # increment counter
+		}	
+	}	
+}
+
+my $j = 0;
+foreach my $name (@n) 
+{
+	foreach my $target (@targets) 
+	{
+		if ($$names{$name} == $target) 
+		{
+			print "$name\n";
+			$j++;
+		}
+		
+	}	
+}
+
+print "Number of ko: $i\n";
+print "\$j = $j\n";
 exit;
 
 
@@ -46,7 +76,6 @@ sub get_koed
 	my @array = <$fh>;
 	# close the filehandle
 	close $fh;
-	#print "$array[2] is the third knockout id!\n"; #debugging statement
 	return @array;
 }
 
@@ -67,12 +96,9 @@ sub get_gi
 	while (<$fh>) 
 	{
 		my $line = $_;
-		#print "$line\n";
 		
 		if ($line =~ /(\d+)\s+(\d+)/) 
-		{
-			#print "TaxID: $2 ; GI: $1\n";
-			
+		{			
 			if (! defined $hash{$2})
 			{
 			    $hash{$2} = [$1];
@@ -86,6 +112,11 @@ sub get_gi
 	return \%hash;
 }
     
+# sub get_taxid_from_name
+# A poorly documented sub, for now
+# Essentially creates a hash table with keys of names and
+# values of taxids...
+# Might be needed for marker pruning.
 
 sub get_taxid_from_name
 {
@@ -99,11 +130,9 @@ sub get_taxid_from_name
 		
 		if ($line =~ /(\d+)\s\|\s(.*\w+( \w*.\s|\s))\|\s+\|\s+scientific name/) 
 		{
-			#print "$1, $2\n";
 			my $id = $1;
 			my $name = $2;
 			$name =~ s/\t//;
-			#print "$name\n";
 			
 			if (exists $hash{$name}) 
 			{
@@ -117,8 +146,3 @@ sub get_taxid_from_name
 	close $fh;
 	return \%hash;
 }
-
-#sub got_ktfoed
-#{
-#	
-#}
