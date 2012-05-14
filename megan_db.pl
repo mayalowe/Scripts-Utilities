@@ -8,19 +8,23 @@ use File::Fetch;
 use File::stat;
 use Time::localtime;
 
-my $input = shift;
+#my $input = shift;
 my $kofile = shift;
 my $gifile = shift;
 
-open my $fh, $input or die "Couldn't open file $input: $!";
+#open my $fh, $input or die "Couldn't open file $input: $!";
 
 # get an array with ko id's from subroutine
 my @ko = get_koed($kofile);
 #print "$ko[2] is the third knockout id!\n"; #debugging statement
 
 my $data = get_gi($gifile);
-
 #print "$$data{288681} is the GI of the third knockout id!\n";
+
+my $names = get_taxid_from_name();
+my @k = keys %$names;
+print "$k[2]\n";
+
 close $fh;
 exit;
 
@@ -69,11 +73,11 @@ sub get_gi
 		{
 			#print "TaxID: $2 ; GI: $1\n";
 			
-			if (exists $hash{$2})
+			if (! defined $hash{$2})
 			{
-				next;
+			    $hash{$2} = [$1];
 			} else {
-				$hash{$2} = $1;
+				push (@{$hash{$2}}, $1);
 			}
 		}
 	}
@@ -85,10 +89,36 @@ sub get_gi
 
 sub get_taxid_from_name
 {
+	open my $fh, "<names.dmp" or die "Couldn't open names.dmp: $!";
 	
+	my %hash;
+	
+	while (<$fh>) 
+	{
+		my $line = $_;
+		
+		if ($line =~ /(\d+)\s\|\s(.*\w+( \w*.\s|\s))\|\s+\|\s+scientific name/) 
+		{
+			#print "$1, $2\n";
+			my $id = $1;
+			my $name = $2;
+			$name =~ s/\t//;
+			#print "$name\n";
+			
+			if (exists $hash{$name}) 
+			{
+				next;	
+			} else {
+				$hash{$name} = $id;
+			}
+		}	
+	}
+	
+	close $fh;
+	return \%hash;
 }
 
-sub got_ktfoed
-{
-	
-}
+#sub got_ktfoed
+#{
+#	
+#}
