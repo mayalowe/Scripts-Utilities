@@ -5,6 +5,7 @@
 # Extreme work in progress
 
 use strict; use warnings;
+use Cwd;
 #use File::Fetch;
 #use File::stat;
 #use Time::localtime;
@@ -22,40 +23,43 @@ my @ko = get_koed($kofile);
 my $data = get_gi($gifile);
 my %nhash = %$data;         # stores hash into hash %nhash
 
-my $names = get_taxid_from_name();
-my @n = keys %$names;       # array of organism names
-my @t = values %$names;     # array of taxids
 
-my $i = 0;
-my @targets = [];
-foreach my $koed (@ko)      # for each knockout taxid
-{
-	foreach my $id (@t)     # for each taxid in ncbi db
-	{
-		if ($koed == $id)   # if knockout is in our db
-		{
-			push(@targets, $id);
-			$i++;           # increment counter
-		}	
-	}	
-}
+list_files_ebi();
+list_files_draft();
+#my $names = get_taxid_from_name();
+#my @n = keys %$names;       # array of organism names
+#my @t = values %$names;     # array of taxids
 
-my $j = 0;
-foreach my $name (@n) 
-{
-	foreach my $target (@targets) 
-	{
-		if ($$names{$name} == $target) 
-		{
-			print "$name\n";
-			$j++;
-		}
-		
-	}	
-}
+#my $i = 0;
+#my @targets = [];
+#foreach my $koed (@ko)      # for each knockout taxid
+#{
+#	foreach my $id (@t)     # for each taxid in ncbi db
+#	{
+#		if ($koed == $id)   # if knockout is in our db
+#		{
+#			push(@targets, $id);
+#			$i++;           # increment counter
+#		}	
+#	}	
+#}
 
-print "Number of ko: $i\n";
-print "\$j = $j\n";
+#my $j = 0;
+#foreach my $name (@n) 
+#{
+#	foreach my $target (@targets) 
+#	{
+#		if ($$names{$name} == $target) 
+#		{
+#			print "$name\n";
+#			$j++;
+#		}
+#		
+#	}	
+#}
+
+#print "Number of ko: $i\n";
+#print "\$j = $j\n";
 exit;
 
 
@@ -118,31 +122,57 @@ sub get_gi
 # values of taxids...
 # Might be needed for marker pruning.
 
-sub get_taxid_from_name
+#sub get_taxid_from_name
+#{
+#	open my $fh, "<names.dmp" or die "Couldn't open names.dmp: $!";
+#	
+#	my %hash;
+#	
+#	while (<$fh>) 
+#	{
+#		my $line = $_;
+#		
+#		if ($line =~ /(\d+)\s\|\s(.*\w+( \w*.\s|\s))\|\s+\|\s+scientific name/) 
+#		{
+#			my $id = $1;
+#			my $name = $2;
+#			$name =~ s/\t//;
+#			
+#			if (exists $hash{$name}) 
+#			{
+#				next;	
+#			} else {
+#				$hash{$name} = $id;
+#			}
+#		}	
+#	}
+#	
+#	close $fh;
+#	return \%hash;
+#}
+sub list_files_ebi
 {
-	open my $fh, "<names.dmp" or die "Couldn't open names.dmp: $!";
-	
-	my %hash;
-	
-	while (<$fh>) 
-	{
-		my $line = $_;
-		
-		if ($line =~ /(\d+)\s\|\s(.*\w+( \w*.\s|\s))\|\s+\|\s+scientific name/) 
-		{
-			my $id = $1;
-			my $name = $2;
-			$name =~ s/\t//;
-			
-			if (exists $hash{$name}) 
-			{
-				next;	
-			} else {
-				$hash{$name} = $id;
-			}
-		}	
-	}
-	
-	close $fh;
-	return \%hash;
+    my $dir = "/share/eisen-d2/amphora2/ebi";
+    opendir my $dh, $dir or die "Couldn't open directory $dir: $!";
+
+    foreach my $file (readdir $dh)
+    {
+	next if $file =~ /^\.\.?$/;
+	next unless $file =~ /.*\.fasta/;
+	print $file;
+    }
+}
+
+sub list_files_draft
+{
+    my $dir = "/share/eisen-d2/amphora2/ncbi_draft";
+    opendir my $dh, $dir or die "Couldn't open directory $dir: $!";
+
+    foreach my $file (readdir $dh)
+    {
+	next if$file =~ /^\.\.?$/;
+	next unless $file =~ /.*\.fasta/;
+	print $file;
+    }
+
 }
