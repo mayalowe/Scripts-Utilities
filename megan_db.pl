@@ -5,9 +5,6 @@
 # Extreme work in progress
 
 use strict; use warnings;
-#use File::Fetch;
-#use File::stat;
-#use Time::localtime;
 
 my $kofile = shift;
 my $gifile = shift;
@@ -16,48 +13,18 @@ my $gifile = shift;
 # get an array with ko id's from subroutine
 my @ko = get_koed($kofile);
 
-# $data is a reference to a hash returned from the sub 
+# $data is a reference to a hash returned from the sub
 # get_gi. this hash has keys of taxids and values of arrays
 # with each element as a gi.
 my $data = get_gi($gifile);
 my %nhash = %$data;         # stores hash into hash %nhash
 
-my $names = get_taxid_from_name();
-my @n = keys %$names;       # array of organism names
-my @t = values %$names;     # array of taxids
 
-my $i = 0;
-my @targets = [];
-foreach my $koed (@ko)      # for each knockout taxid
-{
-	foreach my $id (@t)     # for each taxid in ncbi db
-	{
-		if ($koed == $id)   # if knockout is in our db
-		{
-			push(@targets, $id);
-			$i++;           # increment counter
-		}	
-	}	
-}
+list_files_ebi(@ko);
+list_files_draft(@ko);
 
-my $j = 0;
-foreach my $name (@n) 
-{
-	foreach my $target (@targets) 
-	{
-		if ($$names{$name} == $target) 
-		{
-			print "$name\n";
-			$j++;
-		}
-		
-	}	
-}
 
-print "Number of ko: $i\n";
-print "\$j = $j\n";
 exit;
-
 
 ###################### SUBROUTINES ########################
 
@@ -112,37 +79,46 @@ sub get_gi
 	return \%hash;
 }
     
-# sub get_taxid_from_name
-# A poorly documented sub, for now
-# Essentially creates a hash table with keys of names and
-# values of taxids...
-# Might be needed for marker pruning.
+# sub list_files_ebi
+# This sub and the following are essentially the same
+# if this script was longer or if I was less lazy I
+# would make them objects, but here we are.
+# Oh well.
 
-sub get_taxid_from_name
+sub list_files_ebi
 {
-	open my $fh, "<names.dmp" or die "Couldn't open names.dmp: $!";
-	
-	my %hash;
-	
-	while (<$fh>) 
-	{
-		my $line = $_;
-		
-		if ($line =~ /(\d+)\s\|\s(.*\w+( \w*.\s|\s))\|\s+\|\s+scientific name/) 
-		{
-			my $id = $1;
-			my $name = $2;
-			$name =~ s/\t//;
-			
-			if (exists $hash{$name}) 
-			{
-				next;	
-			} else {
-				$hash{$name} = $id;
-			}
-		}	
-	}
-	
-	close $fh;
-	return \%hash;
+    my @array = shift;
+    my $dir = "/share/eisen-d2/amphora2/ebi";
+    opendir my $dh, $dir or die "Couldn't open directory $dir: $!";
+
+    my @files = readdir $dh;
+#    print "@files\n";
+    foreach my $file (@files)
+    {
+        next if $file =~ /^\.\.?$/;
+#       next unless $file =~ /\.fasta/;
+
+        print $file;
+    }
+
+}
+
+# sub list_files_draft
+# Didn't you read the comments above this?
+
+sub list_files_draft
+{
+    my @array = shift;
+    my $dir = "/share/eisen-d2/amphora2/ncbi_draft";
+    opendir my $dh, $dir or die "Couldn't open directory $dir: $!";
+
+    my @files = readdir $dh;
+#    print "@files\n";
+    foreach my $file (@files)
+    {
+        next if $file =~ /^\.\.?$/;
+#       next unless $file =~ /\.fasta/;
+        print $file;
+    }
+
 }
