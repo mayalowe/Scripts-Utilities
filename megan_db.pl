@@ -1,4 +1,7 @@
 #! /usr/bin/perl
+#$ -S /usr/bin/perl 
+#$ -cwd
+#$ -V
 # Author: Eric Lowe
 # Usage: perl megan_db.pl [input file] [knockout file] [gi file]
 # Script to create a custom db for MEGAN
@@ -7,24 +10,30 @@
 use strict; use warnings;
 
 my $kofile = shift;
-my $gifile = shift;
-
+#my $gifile = shift;
 
 # get an array with ko id's from subroutine
-my @ko = get_koed($kofile);
+my %taxid = ();
+get_koed($kofile, \%taxid);
 
-# $data is a reference to a hash returned from the sub
-# get_gi. this hash has keys of taxids and values of arrays
-# with each element as a gi.
-my $data = get_gi($gifile);
-my %nhash = %$data;         # stores hash into hash %nhash
+my @dirs = qw( ebi ncbi_draft );
+my $n = @dirs;
 
+list_files(\%taxid, \@dirs, $n);
+my @fnames = values %taxid;
+my %koedfiles = ();
+hash_kos(\@fnames, \%koedfiles);
 
-list_files_ebi(@ko);
-list_files_draft(@ko);
+last_push(\%koedfiles);
 
+my %nhash = ();
+hax0rz_fix(\%nhash);
+
+get_gi($gifile, \%nhash);
+write_final_hax0rz(\%nhash);
 
 exit;
+
 
 ###################### SUBROUTINES ########################
 
@@ -37,88 +46,218 @@ exit;
 sub get_koed
 {
     my $in = shift;
-	open my $fh, $in or die "Couldn't open knockout file $in: $!";
+    my $ref = shift;
+    open my $fh, $in or die "Couldn't open knockout file $in: $!";
 	
-	# slurp knockout file into an array	
-	my @array = <$fh>;
-	# close the filehandle
-	close $fh;
-	return @array;
+    while (<$fh>)
+    {
+	chomp(my $id = $_);
+	if  (! defined $$ref{$id})
+	{
+	    $$ref{$id} = 0;
+#	    print "Still good\n";
+	}
+    }
+   
 }
 
-# get_gi($gifile)
-# sub gi_from_taxid takes a file with a list of GenBank ID's 
-# and Taxon IDs and finds the corresponding GenBank ID 
-# for each Taxon ID.
+    
+sub list_files
+{
+    my $ref = shift;
+    my $dref = shift;
+    my $n = shift;
+    my $path = "/share/eisen-d2/amphora2/";
+    my $dir = $$dref[$n - 1];
+    $dir = $path.$dir;
+#    print "$dir\n";
+    my $i = 0;
 
+    if ($n > 1)
+    {
+	my @files = `find $dir -name "*.fasta"`;
+	foreach my $file (@files)
+	{
+	    chomp($file);
+	    $file =~ s/$dir\///;
+#	    print "$file\n";
+	    $file =~ m/.*\.(\d+).fasta/;
+	    my $id = $1;
+#	    print "$id\n";
+
+	    if (exists $$ref{$id})
+	    {
+#		print "We got one!\n";
+		$$ref{$id} = $file;
+		$i++;
+	    }
+	}
+	print "$i\n";
+	pop @$dref;
+	$n--;
+	list_files($ref, $dref,$n); 
+    }elsif ($n == 1)
+    {
+	my @files = `find $dir -name "*.fasta"`;
+        foreach my $file (@files)
+        {
+	    chomp($file);
+            $file =~ s/$dir\///;
+#	    print "$file\n";
+            $file =~ m/.*\.(\d+).fasta/;
+            my $id = $1;
+#            print "$id\n";
+
+            if (exists $$ref{$id})
+	    {
+#                print "We got one!\n";
+                $$ref{$id} = $file;
+                $i++;
+            }
+        }
+        print "$i\n";
+    }
+}
+
+
+sub hash_kos
+{
+    my $array = shift;
+    my $ref = shift;
+    my $i = 0;
+    
+    foreach my $file (@$array)
+    {
+	if (! defined $$ref{$file})
+	{
+	    $$ref{$file} = 1;
+	    $i++;
+	}
+    }
+    print "\$i: $i\n";
+
+}
+
+sub last_push
+{
+    my $ref = shift;
+    my @dirs = qw( /share/eisen-d2/amphora2/ebi /share/eisen-d2/amphora2/ncbi_draft );
+    
+    foreach my $dir (@dirs)
+    {
+	
+	my @files = `find $dir -name "*.fasta"`;
+        foreach my $file (@files)
+        {
+            chomp($file);
+	    write_out($file, $ref);
+	}
+    }
+
+}
+
+sub write_out
+{
+    my $input = shift;
+    my $ref = shift;
+
+    if (exists $$ref{$input})
+    {
+#	print "This file got knocked the fudge out!\n";
+	
+    }else{
+	open my $ifh, "<", $input or die "Couldn't open file for reading: $!";
+	open my $ofh, ">>", "hax0rz.fasta" or die "Couldn't open your stupid hacked fasta: $!";
+
+	while (<$ifh>)
+	{
+	    my $line = $_;
+	    print $ofh "$line";
+	}
+	close $ifh;
+	close $ofh;
+    }
+}
+
+# sub hax0rz_fix
+sub hax0rz_fix
+{
+    my $ref = shift;
+
+    open my $fh, "<", "hax0rz.fasta" or die "Couldn't open your stupid hacked fasta: $!";
+
+    while (<$fh>)
+    {
+        my $line = $_;
+
+        if ($line =~ /^>\w+/)
+        {
+            if ($line =~/^>([a-zA-Z]{1,3}\d+)/)
+            {
+                print "Header is $1\n";
+                $$ref{$1} = 1;
+            }
+        }
+    }
+
+    close $fh;
+}
+
+# sub get_gi
 sub get_gi
 {
-	my $gi = shift;
-	open my $fh, $gi or die "Couldn't open GenBank ID file $gi: $!";
-	
-	#my $stamp = ctime(stat($fh)->mtime);
-	#print "$stamp\n";
-	my %hash;
-	
-	while (<$fh>) 
-	{
-		my $line = $_;
-		
-		if ($line =~ /(\d+)\s+(\d+)/) 
-		{			
-			if (! defined $hash{$2})
-			{
-			    $hash{$2} = [$1];
-			} else {
-				push (@{$hash{$2}}, $1);
-			}
-		}
-	}
-	
-	close $fh;
-	return \%hash;
-}
-    
-# sub list_files_ebi
-# This sub and the following are essentially the same
-# if this script was longer or if I was less lazy I
-# would make them objects, but here we are.
-# Oh well.
+    my $gi = shift;
+    my $ref = shift;
 
-sub list_files_ebi
-{
-    my @array = shift;
-    my $dir = "/share/eisen-d2/amphora2/ebi";
-    opendir my $dh, $dir or die "Couldn't open directory $dir: $!";
+    open my $fh, $gi or die "Couldn't open GenBank ID file $gi: $!";
 
-    my @files = readdir $dh;
-#    print "@files\n";
-    foreach my $file (@files)
+    while (<$fh>)
     {
-        next if $file =~ /^\.\.?$/;
-#       next unless $file =~ /\.fasta/;
+        my $line = $_;
 
-        print $file;
+        if ($line =~ /(\w+\d),\d,(\d+)/)
+        {
+            if (defined $$ref{$1})
+            {
+                print "Defining!\n";
+                $$ref{$1} = $2;
+                print "$$ref{$1} is the gi\n";
+            }
+        }
+
     }
 
+    close $fh;
 }
 
-# sub list_files_draft
-# Didn't you read the comments above this?
-
-sub list_files_draft
+# sub write_final_hax0rz
+sub write_final_hax0rz
 {
-    my @array = shift;
-    my $dir = "/share/eisen-d2/amphora2/ncbi_draft";
-    opendir my $dh, $dir or die "Couldn't open directory $dir: $!";
+    my $gref = shift;
 
-    my @files = readdir $dh;
-#    print "@files\n";
-    foreach my $file (@files)
+    open my $fh, "<", "hax0rz.fasta" or die "Couldn't open your stupid hacked fasta: $!";
+    open my $ofh, ">", "hax0rz_final.fasta" or die "Couldn't write that stupid fasta: $!";
+    while (<$fh>)
     {
-        next if $file =~ /^\.\.?$/;
-#       next unless $file =~ /\.fasta/;
-        print $file;
+        my $line = $_;
+
+        if ($line =~ /^>\w+/)
+        {
+            if ($line =~/^>([a-zA-Z]{1,3}\d+)/)
+            {
+                print "Header is $1\n";
+
+                print "Header should be >gi\|$$gref{$1}\n";
+                print $ofh ">gi|$$gref{$1}\n";
+            }else{
+                print $ofh "$line";
+            }
+        }else{
+            print $ofh "$line";
+        }
     }
 
+    close $fh;
+    close $ofh;
 }
+
