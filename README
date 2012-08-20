@@ -1,0 +1,12 @@
+This repository is a working collection of useful scripts and utilities I have written for various purposes and applications.  Some are still works in progress or require better documentation, but all are useable and currently working.  
+
+Description of Contents:
+ccid_to_name:
+distro_pfam.pl:
+genometofasta.pl:
+megan_to_ps.pl: Perl script that converts MEGAN output to PhyloSift output for benchmarking/comparison purposes.
+move_dir.sh:
+pfamtable.pl:
+testbench.sh: Bash script to automate benchmarking of MEGAN and Phylosift output.
+tutorial_data.pl:
+uncomp.sh: Bash script to "automate" uncompression of compressed files.  Bzip not yet supported, but will be added.
