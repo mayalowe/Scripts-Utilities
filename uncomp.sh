@@ -1,5 +1,5 @@
 #! /bin/bash
-# Eric Lowe and Ivan Hernandez
+# Eric Lowe
 # uncomp.sh
 # Script takes names of files to be decompressed
 # on command line and decompresses them appropriately
@@ -13,10 +13,16 @@ for arg in $@ ; do
 	*.tar) tar -xvf $arg ;;
 	*.tar.gz) tar -xvzf $arg ;;
 	*.tar.Z) tar -xvf $arg ;;
+	*.tar.bz2) tar -jvxf $arg ;;
+	*.tar.bz) tar -jvxf $arg ;;
 	*.tgz) tar -xvzf $arg ;;
+	*.tbz) tar -jvxf $arg ;;
+	*.tbz2) tar -jvxf $arg ;;
 	*.gz) gunzip -d $arg ;;
 	*.Z) uncompress $arg ;;
 	*.zip) unzip $arg ;;
+	*.bz2) bunzip2 $arg ;;
+	*.bz) bunzip2 $arg ;;
 	*) echo "uncomp: $arg has no compression extension" ;;
     esac # case $arg in
 done # for arg in $@ ; 
