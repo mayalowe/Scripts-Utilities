@@ -2,11 +2,14 @@ This repository is a working collection of useful scripts and utilities I have w
 
 Description of Contents:
 ccid_to_name: sed script that converts the ccid of a read to the organism name.
+chunky.sh: bash script for making a single output file from multiple output files resulting from a chunked run of PhyloSift
 distro_pfam.pl: Perl script that parses a txt file for pfams, ID's corresponding protein seqs, and puts those protein seqs into a single .fasta file.
 genometofasta.pl: Perl script that renames genome files with organism taxon id and converts file to .fasta.
+makemake.sh: bash script to write a Makefile for a C++ project
 megan_to_ps.pl: Perl script that converts MEGAN output to PhyloSift output for benchmarking/comparison purposes.
 move_dir.sh: Bash script that moves multiple directories to a user specified directory.
 pfamtable.pl: Perl script that makes a table of pfams that corresponds to a given organism.
+print_benchmark.sh: bash script to print benchmark results to a file in a more readable format
 testbench.sh: Bash script to automate benchmarking of MEGAN and Phylosift output.
 tutorial_data.pl: Perl script that creates an ~20Mb file that can be used as a tutorial dataset for PhyloSift.
 uncomp.sh: Bash script to "automate" uncompression of compressed files.  Bzip not yet supported, but will be added.
