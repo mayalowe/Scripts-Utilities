@@ -6,6 +6,7 @@ chunky.sh: bash script for making a single output file from multiple output file
 distro_pfam.pl: Perl script that parses a txt file for pfams, ID's corresponding protein seqs, and puts those protein seqs into a single .fasta file.
 genometofasta.pl: Perl script that renames genome files with organism taxon id and converts file to .fasta.
 makemake.sh: bash script to write a Makefile for a C++ project
+mcv_to_ps.pl: perl script that coverts MetaCV output into PhyloSift output for benchmarking
 megan_to_ps.pl: Perl script that converts MEGAN output to PhyloSift output for benchmarking/comparison purposes.
 move_dir.sh: Bash script that moves multiple directories to a user specified directory.
 pfamtable.pl: Perl script that makes a table of pfams that corresponds to a given organism.
