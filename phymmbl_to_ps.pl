@@ -33,14 +33,10 @@ else {
 
 my $catalog_file = "$prefix1/RefSeq-release54.catalog";
 my $phymmbl_file = "$prefix2/accessionMap.txt";
-
 my $ncbi_org_ref = get_ncbi_accessions($catalog_file);
 my $phymmbl_org_ref = get_phymmbl_accessions($phymmbl_file);
 
-
 read_in($ncbi_org_ref, $phymmbl_org_ref, $input, $output);
-
-#write_out($output); # calls subroutine to write out to file
 
 exit;
 
@@ -112,20 +108,23 @@ sub read_in {
 	   next if $_ =~ 'QUERY_ID'; # skip first line of file
 	   chomp(my $line = $_);
 	   my @field = split('\t', $line);
+	   my $name = q();
+	   my $read_id = q();
+	   my $taxon_id = q();
+	   
 	   if (! defined $$phymmbl_ref{$field[1]}) {
 	       print "Undefined name: $field[1]\n";
 	   }
 	   else {
-	       print "Defined name: $field[1]\n";
+	       #print "Defined name: $field[1]\n";
+	       my $accession = $$phymmbl_ref{$field[1]};
+	       $name = $ncbi_ref->{$accession}[0];
+           $read_id = $field[0];
+           $taxon_id = $ncbi_ref->{$accession}[1];
+           write_out($name, $read_id, $taxon_id, $output_file);
 	   }
 #	print "$field[1], $field[0], $$taxed_ref{$field[1]}\n";
-#	my $hash_ref = { 
-#	    name => "$field[1]",
-#	    read_id => "$field[0]",
-#	    taxon_id => "$$taxed_ref{$field[1]}",
-#	}
     }
-
     $infh->close; # closes input file filehandle
 } # sub read_in
 
@@ -146,10 +145,14 @@ sub name_output {
 # Takes $output as the only parameter. 
 # Has no return value, closes output file at end of sub.
 sub write_out {
-    my $line_ref = shift;
+    my $name = shift;
+    my $read_id = shift;
+    my $taxon_id = shift;
     my $file = shift; # local variable for output file
     my $ofh = IO::File->new(">> $file") 
-	or die "Could not open $file for writing: $!";
+	   or die "Could not open $file for writing: $!";
+	   
+	print $ofh "$read_id\t$taxon_id\tno rank\t$name\t1\tconcat\n";
 
     $ofh->close;
 } # sub write_out
