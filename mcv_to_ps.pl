@@ -10,6 +10,8 @@ use warnings;
 my $input = shift;
 open my $fh, $input or die "Couldn't open file: $!";
 
+# print header line for sequence_taxa.txt
+print "##Sequence_ID\tHit_Coordinates\tNCBI_Taxon_ID\tTaxon_Rank\tTaxon_Name\tProbability_Mass\tMarkers_Hit\n";
 while(<$fh>)
 {
     chomp(my $line = $_);
@@ -20,7 +22,7 @@ while(<$fh>)
     {
 	next;
     }
-    print "$fields[0]\t$fields[5]\tno rank\t$fields[6]\t1\tconcat\n";
+    print "$fields[0]\t2.71828\t$fields[5]\tno rank\t$fields[6]\t1\tconcat\n";
 }
 
 exit;

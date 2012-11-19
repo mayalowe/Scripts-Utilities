@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 # Author: Eric Lowe
-# Usage: phymmbl_to_ps.pl [input] [output]
+# Usage: phymmbl_to_ps.pl [input]
 # perl script to convert phymmbl output to PS output
 
 use strict;
@@ -106,6 +106,8 @@ sub read_in {
     # input file filehandle
     my $infh = IO::File->new("< $input_file") 
 	   or die "Could not open $input_file for reading: $!"; 
+    
+    write_header($output_file); # write header line
 
     while (<$infh>) {
 	   next if $_ =~ 'QUERY_ID'; # skip first line of file
@@ -166,8 +168,19 @@ sub write_out {
     my $ofh = IO::File->new(">> $file") 
 	   or die "Could not open $file for writing: $!";
 	   
-    print $ofh "$read_id\t$taxon_id\tno rank\t$name\t1\tconcat\n";
+    print $ofh "$read_id\t2.71828\t$taxon_id\tno rank\t$name\t1\tconcat\n";
 
     $ofh->close;
 } # sub write_out
 
+# sub write_header
+# Subroutine to write sequence_taxa.txt header line
+sub write_header {
+    my $file = shift; # local variable for output file
+    my $ofh = IO::File->new("> $file")
+        or die "Could not open $file for writing: $!";
+
+    print $ofh "##Sequence_ID\tHit_Coordinates\tNCBI_Taxon_ID\tTaxon_Rank\tTaxon_Name\tProbability_Mass\tMarkers_Hit\n";
+
+    $ofh->close;
+} # sub write_header
