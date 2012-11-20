@@ -21,7 +21,7 @@ my $ncbi_file = '/home/elowe/ncbi/names.dmp';
 my $output = name_output($input);
 
 my $organism_ref = get_taxids($ncbi_file);
-
+read_file($input, $organism_ref);
 
 
 exit;
@@ -51,11 +51,18 @@ sub name_output {
 #
 sub read_file {
     my $file = shift;
+    my $hashref = shift;
     my $ifh = IO::File->new("< $file")
         or die "Couldn't open file for reading: $!";
     
     while (<$ifh>) {
-
+        chomp(my $line = $_);
+        
+        my @fields = split('\t', $line);
+        my $read = $fields[0];
+        my $name = pop @fields;
+        $name =~ s/_/ /g; # either need to do more formatting of names or need to find name source
+        print "read: $read, name: $name\n";
     }
 
     $ifh->close;
@@ -98,9 +105,15 @@ sub get_taxids {
     while (<$ifh>) {
         chomp(my $line = $_);
 
-        my @fields = split('\t|\t', $line);
-        print "Taxid: $fields[0], Name: $fields[1]\n";
-        
+        my @fields = split('\t\|\t', $line);
+
+        if ( !defined $ncbi_organism{$fields[1]} ) {
+            $ncbi_organism{$fields[1]} = $fields[0];
+        }
+        else {
+#            print "Offender: $fields[1], $fields[0]\n";
+ #           print "Defined: $ncbi_organism{$fields[1]}\n";
+        }
     }
     $ifh->close;
     return \%ncbi_organism;
