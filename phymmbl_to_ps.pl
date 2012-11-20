@@ -62,6 +62,7 @@ sub get_ncbi_accessions {
             print "We've seen $fields[2] before!\n";
         }
     }
+    $catalog_fh->close;
     return \%ncbi_organism;
 } # sub get_ncbi_accessions
 
@@ -90,6 +91,7 @@ sub get_phymmbl_accessions {
             $phymmbl_organism{ $fields[0] } = $fields[1];
 	}
     }
+    $phymmbl_fh->close;
     return \%phymmbl_organism;
 } # sub get_phymmbl_accessions
 

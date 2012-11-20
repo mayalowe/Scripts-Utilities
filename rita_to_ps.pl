@@ -17,20 +17,17 @@ if (($#ARGV + 1) != 1) {
 }
 
 my $input = shift;
-my $in_fh = IO::File->new("< $input")
-    or die "Couldn't open $input for reading: $!";
-
+my $ncbi_file = '/home/elowe/ncbi/names.dmp';
 my $output = name_output($input);
 
+my $organism_ref = get_taxids($ncbi_file);
 
 
 
 exit;
 
-
-
-################### SUBROUTINES ###############################
-###############################################################
+################### SUBROUTINES ##########################################
+##########################################################################
 
 # sub name_output                                                                                             
 # Subroutine to appropriately name output file based on name of input file.                                   
@@ -53,15 +50,27 @@ sub name_output {
 # sub read_file
 #
 sub read_file {
+    my $file = shift;
+    my $ifh = IO::File->new("< $file")
+        or die "Couldn't open file for reading: $!";
+    
+    while (<$ifh>) {
 
+    }
 
+    $ifh->close;
 } # sub read_file
 
 
 # sub write_output
 #
 sub write_output {
+    my $file = shift;
+    my $ofh = IO::File->new(">> $file")
+        or die "Couldn't open $file for writing: $!";
 
+
+    $ofh->close;
 } # sub write_output
 
 
@@ -76,3 +85,23 @@ sub write_header {
 
     $ofh->close;
 } # sub write_header
+
+# sub get_taxids
+#
+sub get_taxids {
+    my $file = shift;
+    my $ifh = IO::File->new("< $file")
+        or die "Could not open $file for reading: $!";
+
+    my %ncbi_organism;
+
+    while (<$ifh>) {
+        chomp(my $line = $_);
+
+        my @fields = split('\t|\t', $line);
+        print "Taxid: $fields[0], Name: $fields[1]\n";
+        
+    }
+    $ifh->close;
+    return \%ncbi_organism;
+} # sub get_taxids
