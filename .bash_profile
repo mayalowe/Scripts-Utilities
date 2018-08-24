@@ -11,15 +11,16 @@ source ~/.bashrc
 #
 # Set paths
 # ---------------------------------------------------------
-export PATH="$PATH:/usr/local/bin/"
+# add my local bin to homebrew bin w/ gnutils accessible
+export PATH="$PATH:~/bin:/usr/local/bin/:/usr/local/opt/grep/libexec/gnubin"
 export PATH="/usr/local/git/bin:/usr/local/bin:/usr/local/:/usr/local/sbin:$PATH"
-export PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.6/site-packages"
-
 # Setting PATH for Python 3.7
 # The original version is saved in .bash_profile.pysave
-PATH="/Library/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"
-export PATH
-
+export PATH="/Library/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"
+# setting pythonpath
+export PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.6/site-packages"
+# export and set manpath to include gnutils man pages
+export MANPATH="/usr/local/opt/grep/libexec/gnuman:$MANPATH"
 # Set default editor to Atom
 # ---------------------------------------------------------
 export EDITOR="atom --wait"
@@ -89,7 +90,7 @@ check_integer () {
 }
 
 # log -- function to enable verbose settings to work
-# usage: log "input"
+# usage: log input
 log () {
   if [[ $_V -eq 1 ]]; then
     echo "$@"
@@ -97,7 +98,7 @@ log () {
 }
 
 # log_debug -- function to allow debugging functionality
-# usage: log_debug "input"
+# usage: log_debug input
 log_debug () {
   if [[ $_T -eq 1 ]]; then
     echo "$@"
@@ -105,7 +106,7 @@ log_debug () {
 }
 
 # log_error -- function to enable error-only output
-# usage: log_error "input"
+# usage: log_error input
 log_error () {
   if [[ $_E -eq 1 ]]; then
     echo "$@"
