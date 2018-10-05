@@ -13,10 +13,10 @@ source ~/.bashrc
 # ---------------------------------------------------------
 # add my local bin to homebrew bin w/ gnutils accessible
 export PATH="$PATH:~/bin:/usr/local/bin/:/usr/local/opt/grep/libexec/gnubin"
-export PATH="/usr/local/git/bin:/usr/local/bin:/usr/local/:/usr/local/sbin:$PATH"
+export PATH="$PATH:/usr/local/git/bin:/usr/local/bin:/usr/local/:/usr/local/sbin"
 # Setting PATH for Python 3.7
 # The original version is saved in .bash_profile.pysave
-export PATH="/Library/Frameworks/Python.framework/Versions/3.7/bin:${PATH}"
+export PATH="$PATH:/Library/Frameworks/Python.framework/Versions/3.7/bin"
 # setting pythonpath
 export PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.6/site-packages"
 # export and set manpath to include gnutils man pages
