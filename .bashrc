@@ -22,5 +22,8 @@ alias gstat='git status -b'            # run git status
 alias gith='git fetch --all --prune' # hard git fetch
 alias gl='git log --graph --pretty'  # git log behavior alias
 alias gp='git pull'                 # alias for git pull
+alias gpush='git push origin $(git symbolic-ref --short HEAD)'
+# alias for automatic git commit
+alias gc='git commit -m "$(git symbolic-ref --short HEAD): updates"'
 # alias to hard update homebrew
 alias brwd='cd "$(brew --repo)" && git fetch && git reset --hard origin/master && brew update && brew upgrade && cd -'
